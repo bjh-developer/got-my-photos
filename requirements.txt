@@ -1,3 +1,5 @@
 flask
-face-recognition
 pillow
+numpy
+dlib==19.22.1
+face-recognition
