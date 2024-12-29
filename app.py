@@ -99,5 +99,5 @@ def find_matching_images(user_image_path, folder_path, output_folder):
 
     return matching_images
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
