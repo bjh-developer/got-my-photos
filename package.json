@@ -1,9 +1,0 @@
-{
-    "name": "got-my-photos",
-    "version": "1.0.0",
-    "scripts": {
-      "install-cmake": "apt-get update && apt-get install -y cmake",
-      "build": "npm run install-cmake && pip install -r requirements.txt"
-    }
-  }
-  

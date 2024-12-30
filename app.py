@@ -1,11 +1,13 @@
-from flask import Flask, request, jsonify, send_file, render_template
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse, HTMLResponse
 import os
 import zipfile
 import shutil
 import face_recognition
 from PIL import Image
+from pathlib import Path
 
-app = Flask(__name__)
+app = FastAPI()
 
 # Set up temporary directories for uploads and outputs
 UPLOAD_FOLDER = "/tmp/uploads"
@@ -13,33 +15,34 @@ OUTPUT_FOLDER = "/tmp/output_matches"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# Configuration for the app
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["OUTPUT_FOLDER"] = OUTPUT_FOLDER
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # Limit file size to 16MB
+# Get the directory of the current script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+@app.get("/", response_class=HTMLResponse)
+def serve_frontend():
+    template_path = os.path.join(BASE_DIR, "templates", "index.html")
+    with open(template_path, "r") as file:
+        return file.read()
 
-@app.route("/upload", methods=["POST"])
-def upload_files():
-    UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
-    OUTPUT_FOLDER = app.config['OUTPUT_FOLDER']
+@app.post("/upload")
+def upload_files(user_image: UploadFile = File(...), folder_zip: UploadFile = File(...)):
+    global UPLOAD_FOLDER, OUTPUT_FOLDER
+    UPLOAD_FOLDER = Path(UPLOAD_FOLDER)
+    OUTPUT_FOLDER = Path(OUTPUT_FOLDER)
 
-    if "user_image" not in request.files or "folder_zip" not in request.files:
-        return jsonify({"error": "Please upload both the user image and a zipped folder of images."}), 400
+    # Save the uploaded user image
+    user_image_path = UPLOAD_FOLDER / "user_image.jpg"
+    with user_image.file as f:
+        user_image_path.write_bytes(f.read())
 
-    user_image = request.files["user_image"]
-    user_image_path = os.path.join(UPLOAD_FOLDER, "user_image.jpg")
-    user_image.save(user_image_path)
+    # Save the uploaded zip file
+    folder_zip_path = UPLOAD_FOLDER / "folder.zip"
+    with folder_zip.file as f:
+        folder_zip_path.write_bytes(f.read())
 
-    folder_zip = request.files["folder_zip"]
-    folder_zip_path = os.path.join(UPLOAD_FOLDER, "folder.zip")
-    folder_zip.save(folder_zip_path)
-
-    extracted_folder = os.path.join(UPLOAD_FOLDER, "extracted_folder")
-    os.makedirs(extracted_folder, exist_ok=True)
+    # Extract the contents of the zip file
+    extracted_folder = UPLOAD_FOLDER / "extracted_folder"
+    extracted_folder.mkdir(exist_ok=True)
 
     with zipfile.ZipFile(folder_zip_path, "r") as zip_ref:
         zip_ref.extractall(extracted_folder)
@@ -47,19 +50,22 @@ def upload_files():
     try:
         matching_images = find_matching_images(user_image_path, extracted_folder, OUTPUT_FOLDER)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-    result_zip_path = os.path.join(OUTPUT_FOLDER, "matching_images.zip")
+    # Create a zip file of the matching images
+    result_zip_path = OUTPUT_FOLDER / "matching_images.zip"
     with zipfile.ZipFile(result_zip_path, "w") as zipf:
         for root, _, files in os.walk(OUTPUT_FOLDER):
             for file in files:
                 if file != "matching_images.zip":
-                    zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), OUTPUT_FOLDER))
+                    file_path = Path(root) / file
+                    zipf.write(file_path, file_path.relative_to(OUTPUT_FOLDER))
 
+    # Clean up temporary files
     shutil.rmtree(extracted_folder)
-    os.remove(folder_zip_path)
+    folder_zip_path.unlink()
 
-    return send_file(result_zip_path, as_attachment=True, download_name="matching_images.zip")
+    return FileResponse(result_zip_path, media_type="application/zip", filename="matching_images.zip")
 
 def find_matching_images(user_image_path, folder_path, output_folder):
     print("Loading user image...")
@@ -71,11 +77,11 @@ def find_matching_images(user_image_path, folder_path, output_folder):
 
     user_face_encoding = user_face_encoding[0]
     matching_images = []
-    os.makedirs(output_folder, exist_ok=True)
+    output_folder.mkdir(exist_ok=True)
 
     print("Scanning folder for matching images...")
     for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
+        file_path = folder_path / filename
         if not filename.lower().endswith(("png", "jpg", "jpeg")):
             continue
 
@@ -90,7 +96,7 @@ def find_matching_images(user_image_path, folder_path, output_folder):
                 match = face_recognition.compare_faces([user_face_encoding], candidate_face_encoding, tolerance=0.6)
                 if match[0]:
                     matching_images.append(file_path)
-                    output_path = os.path.join(output_folder, filename)
+                    output_path = output_folder / filename
                     image = Image.open(file_path)
                     image.save(output_path)
                     break
@@ -100,4 +106,5 @@ def find_matching_images(user_image_path, folder_path, output_folder):
     return matching_images
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
