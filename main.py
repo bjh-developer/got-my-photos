@@ -1,110 +1,91 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse
-import os
-import zipfile
-import shutil
+import streamlit as st
 import face_recognition
+import zipfile
+import os
+from io import BytesIO
 from PIL import Image
-from pathlib import Path
 
-app = FastAPI()
+# Helper function to process images
+def process_images(target_image, image_files, tolerance=0.6):
+    matched_images = []
 
-# Set up temporary directories for uploads and outputs
-UPLOAD_FOLDER = "/tmp/uploads"
-OUTPUT_FOLDER = "/tmp/output_matches"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
-# Get the directory of the current script
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-@app.get("/", response_class=HTMLResponse)
-def serve_frontend():
-    template_path = os.path.join(BASE_DIR, "templates", "index.html")
-    with open(template_path, "r") as file:
-        return file.read()
-
-@app.post("/upload")
-def upload_files(user_image: UploadFile = File(...), folder_zip: UploadFile = File(...)):
-    global UPLOAD_FOLDER, OUTPUT_FOLDER
-    UPLOAD_FOLDER = Path(UPLOAD_FOLDER)
-    OUTPUT_FOLDER = Path(OUTPUT_FOLDER)
-
-    # Save the uploaded user image
-    user_image_path = UPLOAD_FOLDER / "user_image.jpg"
-    with user_image.file as f:
-        user_image_path.write_bytes(f.read())
-
-    # Save the uploaded zip file
-    folder_zip_path = UPLOAD_FOLDER / "folder.zip"
-    with folder_zip.file as f:
-        folder_zip_path.write_bytes(f.read())
-
-    # Extract the contents of the zip file
-    extracted_folder = UPLOAD_FOLDER / "extracted_folder"
-    extracted_folder.mkdir(exist_ok=True)
-
-    with zipfile.ZipFile(folder_zip_path, "r") as zip_ref:
-        zip_ref.extractall(extracted_folder)
-
+    # Load the target image and encode its face
     try:
-        matching_images = find_matching_images(user_image_path, extracted_folder, OUTPUT_FOLDER)
+        target_image = face_recognition.load_image_file(target_image)
+        target_encoding = face_recognition.face_encodings(target_image)
+        if not target_encoding:
+            st.error("No face detected in the target image. Please upload a clear photo.")
+            return matched_images
+        target_encoding = target_encoding[0]
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        st.error(f"Error processing target image: {e}")
+        return matched_images
 
-    # Create a zip file of the matching images
-    result_zip_path = OUTPUT_FOLDER / "matching_images.zip"
-    with zipfile.ZipFile(result_zip_path, "w") as zipf:
-        for root, _, files in os.walk(OUTPUT_FOLDER):
-            for file in files:
-                if file != "matching_images.zip":
-                    file_path = Path(root) / file
-                    zipf.write(file_path, file_path.relative_to(OUTPUT_FOLDER))
-
-    # Clean up temporary files
-    shutil.rmtree(extracted_folder)
-    folder_zip_path.unlink()
-
-    return FileResponse(result_zip_path, media_type="application/zip", filename="matching_images.zip")
-
-def find_matching_images(user_image_path, folder_path, output_folder):
-    print("Loading user image...")
-    user_image = face_recognition.load_image_file(user_image_path)
-    user_face_encoding = face_recognition.face_encodings(user_image)
-
-    if not user_face_encoding:
-        raise ValueError("No face found in the user's image. Please use a valid image with a visible face.")
-
-    user_face_encoding = user_face_encoding[0]
-    matching_images = []
-    output_folder.mkdir(exist_ok=True)
-
-    print("Scanning folder for matching images...")
-    for filename in os.listdir(folder_path):
-        file_path = folder_path / filename
-        if not filename.lower().endswith(("png", "jpg", "jpeg")):
-            continue
-
+    # Loop through uploaded images to find matches
+    for image_file in image_files:
         try:
-            candidate_image = face_recognition.load_image_file(file_path)
-            candidate_face_encodings = face_recognition.face_encodings(candidate_image)
+            image = face_recognition.load_image_file(image_file)
+            encodings = face_recognition.face_encodings(image)
 
-            if not candidate_face_encodings:
-                continue
+            if encodings:  # Check if faces were found
+                found = False
+                for encoding in encodings:
+                    match = face_recognition.compare_faces([target_encoding], encoding, tolerance=tolerance)
+                    if match[0]:
+                        matched_images.append(image_file)
+                        found = True    
+                if found:
+                    st.warning(f"Correct face detected in {image_file.name}. Saving...")
+                else:
+                    st.warning(f"Wrong face detected in {image_file.name}. Saving...")
 
-            for candidate_face_encoding in candidate_face_encodings:
-                match = face_recognition.compare_faces([user_face_encoding], candidate_face_encoding, tolerance=0.6)
-                if match[0]:
-                    matching_images.append(file_path)
-                    output_path = output_folder / filename
-                    image = Image.open(file_path)
-                    image.save(output_path)
-                    break
+            else:
+                st.warning(f"No face detected in {image_file.name}. Skipping...")
         except Exception as e:
-            print(f"Error processing {filename}: {e}")
+            st.error(f"Error processing image {image_file.name}: {e}")
 
-    return matching_images
+    return matched_images
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Streamlit App UI
+st.title("Face Recognition Photo Selector")
+st.write("Upload a photo of yourself and a folder of random photos. The app will detect and extract photos containing your face.")
+
+# Upload target image
+st.header("Step 1: Upload Your Photo")
+target_image = st.file_uploader("Upload a clear photo of your face:", type=["jpg", "jpeg", "png"])
+
+# Upload random photos
+st.header("Step 2: Upload Photos to Search")
+photo_files = st.file_uploader("Upload multiple photos:", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+
+# Process and download results
+if st.button("Find Matching Photos"):
+    if target_image and photo_files:
+        with st.spinner("Processing images. Please wait..."):
+            # Process the images
+            matched_images = process_images(target_image, photo_files, tolerance=0.6)
+
+            if matched_images:
+                st.success(f"Found {len(matched_images)} matching photos.")
+
+                # Create a ZIP file to download
+                zip_buffer = BytesIO()
+                with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                    for image_file in matched_images:
+                        image_name = os.path.basename(image_file.name)
+                        image_file.seek(0)
+                        zip_file.writestr(image_name, image_file.read())
+
+                zip_buffer.seek(0)
+
+                # Provide a download link
+                st.download_button(
+                    label="Download Matching Photos",
+                    data=zip_buffer,
+                    file_name="matching_photos.zip",
+                    mime="application/zip",
+                )
+            else:
+                st.warning("No matching photos found.")
+    else:
+        st.error("Please upload both your photo and a set of random photos.")
