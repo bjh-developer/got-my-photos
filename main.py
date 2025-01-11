@@ -6,13 +6,13 @@ from io import BytesIO
 from PIL import Image
 
 # Helper function to process images
-def process_images(target_image, image_files, tolerance=0.6):
+def process_images(target_image, image_files, tolerance=0.5):
     matched_images = []
 
     # Load the target image and encode its face
     try:
         target_image = face_recognition.load_image_file(target_image)
-        target_encoding = face_recognition.face_encodings(target_image)
+        target_encoding = face_recognition.face_encodings(target_image, num_jitters=100)
         if not target_encoding:
             st.error("No face detected in the target image. Please upload a clear photo.")
             return matched_images
