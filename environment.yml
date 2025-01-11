@@ -2,6 +2,6 @@ channels:
   - conda-forge
 dependencies:
   - dlib
-  - numpy
+  - numpy==1.23.5
   - face_recognition
   - Pillow
