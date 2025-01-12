@@ -92,7 +92,7 @@ def process_images(target_image, image_files, tolerance, updates_expand):
     target_image = rotate_image(Image.open(target_image))
     try:
         target_image = face_recognition.load_image_file(target_image)
-        target_encoding = face_recognition.face_encodings(target_image)
+        target_encoding = face_recognition.face_encodings(target_image, num_jitters=100)
 
         if not target_encoding:
             st.error("No face detected in your selfie (photo from step 1). Please upload a clear photo.")
