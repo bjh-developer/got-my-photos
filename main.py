@@ -127,118 +127,124 @@ def process_images(target_image, image_files, tolerance, updates_expand):
 
 
 # Streamlit App UI
-st.title("📸 Got My Photos?")
-st.write("Upload a photo of yourself and a folder of random photos. The webapp will detect and extract photos containing your face.")
-story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
-story_expand.write("During his time at Hwa Chong Institution (College)\
-                   , Joon Hao always looked forward to receiving the photographs\
-                    taken by Studio Ardent (a Service and Enrichment CCA that\
-                    contributes in a great way to major school events\
-                    through its photography, videography and PA/AVA services)\
-                    after any key events."
-                   )
-story_expand.write("However, he found it tedious to look through the hundreds\
-                    of wonderful photographs by Studio Ardent in search of\
-                    images with him inside to download.")
-story_expand.write("That's when Joon Hao decided to create the web app\
-                    'Got My Photos?' to alleviate this problem.")
-story_expand.write("'Got My Photos?' aims to help HCI (College) students automate\
-                    the task of sieving out images of themselves taken by Studio Ardent.")
-story_expand.write("Just in 3 simple steps, they can download Studio Ardent\
-                    images that have their face in them!")
-tutorial_expand = st.expander("How to use this webapp?", expanded=False)
-with tutorial_expand:
-    st.write("1. Upload a clear photo of your face. Ensure no other faces are in the photo.")
-    st.write("2. Upload a set of random photos. You can drag and drop folders of photos.")
-    st.write("3. Click the 'Find Matching Photos' button and wait for the results.")
-    st.write("4. Download the ZIP file containing the matching photos.")
+intro_container = st.container()
+with intro_container:
+    st.title("📸 Got My Photos?")
+    st.write("Upload a photo of yourself and a folder of random photos. The webapp will detect and extract photos containing your face.")
+    story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
+    story_expand.write("During his time at Hwa Chong Institution (College)\
+                    , Joon Hao always looked forward to receiving the photographs\
+                        taken by Studio Ardent (a Service and Enrichment CCA that\
+                        contributes in a great way to major school events\
+                        through its photography, videography and PA/AVA services)\
+                        after any key events."
+                    )
+    story_expand.write("However, he found it tedious to look through the hundreds\
+                        of wonderful photographs by Studio Ardent in search of\
+                        images with him inside to download.")
+    story_expand.write("That's when Joon Hao decided to create the web app\
+                        'Got My Photos?' to alleviate this problem.")
+    story_expand.write("'Got My Photos?' aims to help HCI (College) students automate\
+                        the task of sieving out images of themselves taken by Studio Ardent.")
+    story_expand.write("Just in 3 simple steps, they can download Studio Ardent\
+                        images that have their face in them!")
+    tutorial_expand = st.expander("How to use this webapp?", expanded=False)
+    with tutorial_expand:
+        st.write("1. Upload a clear photo of your face. Ensure no other faces are in the photo.")
+        st.write("2. Upload a set of random photos. You can drag and drop folders of photos.")
+        st.write("3. Click the 'Find Matching Photos' button and wait for the results.")
+        st.write("4. Download the ZIP file containing the matching photos.")
 
 
 st.divider()
 
+steps_container = st.container()
+with steps_container:
+    # Upload target image
+    st.header("Step 1: Upload Your Photo")
+    target_image = st.file_uploader("Upload a clear photo of your face (tip: take a selfie with a clean background):", type=["jpg", "jpeg", "png"])
 
-# Upload target image
-st.header("Step 1: Upload Your Photo")
-target_image = st.file_uploader("Upload a clear photo of your face (tip: take a selfie with a clean background):", type=["jpg", "jpeg", "png"])
+    # Upload random photos
+    st.header("Step 2: Upload Photos to Search")
+    photo_files = st.file_uploader("Upload multiple photos:", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-# Upload random photos
-st.header("Step 2: Upload Photos to Search")
-photo_files = st.file_uploader("Upload multiple photos:", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+    # Process and download results
+    st.header("Step 3: Click, Wait and Download!")
+    if st.button("Find Matching Photos"):
+        if target_image and photo_files:
+            with st.spinner("Processing images. Please wait..."):
+                updates_expand = st.expander("Updates", icon="⏳")
 
-# Process and download results
-st.header("Step 3: Click, Wait and Download!")
-if st.button("Find Matching Photos"):
-    if target_image and photo_files:
-        with st.spinner("Processing images. Please wait..."):
-            updates_expand = st.expander("Updates", icon="⏳")
+                # Process the images
+                matched_images = process_images(target_image, photo_files, 0.43, updates_expand)
 
-            # Process the images
-            matched_images = process_images(target_image, photo_files, 0.43, updates_expand)
+                if matched_images:
+                    st.success(f"Found {len(matched_images)} matching photos.")
 
-            if matched_images:
-                st.success(f"Found {len(matched_images)} matching photos.")
+                    # Create a ZIP file to download
+                    zip_buffer = BytesIO()
+                    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                        for name in matched_images:
+                            matched_images[name].seek(0)
+                            zip_file.writestr(name, matched_images[name].read())
 
-                # Create a ZIP file to download
-                zip_buffer = BytesIO()
-                with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                    for name in matched_images:
-                        matched_images[name].seek(0)
-                        zip_file.writestr(name, matched_images[name].read())
+                    zip_buffer.seek(0)
 
-                zip_buffer.seek(0)
-
-                # Provide a download link
-                st.download_button(
-                    label="Download Matching Photos",
-                    data=zip_buffer,
-                    file_name="matching_photos.zip",
-                    mime="application/zip",
-                )
-            else:
-                st.warning("No matching photos found.")
-    else:
-        st.error("Please upload both your photo and a set of random photos.")
-
-
-st.divider()
-
-
-# Feedback
-st.header("Have Feedback?")
-st.write("If you have any feedback, suggestions, or bug reports, feel free to share them here.")
-st.link_button("Share Feedback", "https://equatorial-seed-0b4.notion.site/17986b21da3580d59823d7c8fde8bcb4?pvs=105")
+                    # Provide a download link
+                    st.download_button(
+                        label="Download Matching Photos",
+                        data=zip_buffer,
+                        file_name="matching_photos.zip",
+                        mime="application/zip",
+                    )
+                else:
+                    st.warning("No matching photos found.")
+        else:
+            st.error("Please upload both your photo and a set of random photos.")
 
 
 st.divider()
 
-
-# More information
-about_tab, privacy_tab, version_tab = st.tabs(["About", "Privacy", "Version History"])
-with about_tab:
-    st.write("Created by [Bek Joon Hao](%s), this webapp uses facial recognition to find photos\
-              containing your face from a set of random photos. It is built with Streamlit\
-              and the face_recognition library." % "www.linkedin.com/in/bek-joon-hao")
-    st.write("For the full story behind this webapp, check out the 'Story behind this webapp' toggle above!")
-    st.write("Even though the target audience is HCI (College) students, anyone can feel free\
-              to use this webapp to find photos with their face in them.")
-    st.write("The source code is available on [GitHub](%s)" % "https://github.com/bjh-developer/got-my-photos")
-    st.warning("Disclaimer: This webapp is not affiliated with Studio Ardent or Hwa Chong Institution (College).\
-                This is a personal project created to bring convenience to people.\
-                No money is earned from this webapp.")
-with privacy_tab:
-    st.write("This webapp does not store any images or data. All processing is done locally on your device.")
-    st.write("For more information, please refer to the [Streamlit Privacy Policy](https://streamlit.io/privacy-policy).")
-with version_tab:
-    st.write("Currently: Version 1.0.0")
-    version_history_expand = st.expander("Version History", expanded=False)
-    with version_history_expand:
-        st.write("**Version 1.0.0** (12 Jan 2025): Initial release of the webapp.")
+feedback_container = st.container()
+with feedback_container:
+    # Feedback
+    st.header("Have Feedback?")
+    st.write("If you have any feedback, suggestions, or bug reports, feel free to share them here.")
+    st.link_button("Share Feedback", "https://equatorial-seed-0b4.notion.site/17986b21da3580d59823d7c8fde8bcb4?pvs=105")
 
 
 st.divider()
 
+info_container = st.container()
+with info_container:
+    # More information
+    about_tab, privacy_tab, version_tab = st.tabs(["About", "Privacy", "Version History"])
+    with about_tab:
+        st.write("Created by [Bek Joon Hao](%s), this webapp uses facial recognition to find photos\
+                containing your face from a set of random photos. It is built with Streamlit\
+                and the face_recognition library." % "www.linkedin.com/in/bek-joon-hao")
+        st.write("For the full story behind this webapp, check out the 'Story behind this webapp' toggle above!")
+        st.write("Even though the target audience is HCI (College) students, anyone can feel free\
+                to use this webapp to find photos with their face in them.")
+        st.write("The source code is available on [GitHub](%s)" % "https://github.com/bjh-developer/got-my-photos")
+        st.warning("Disclaimer: This webapp is not affiliated with Studio Ardent or Hwa Chong Institution (College).\
+                    This is a personal project created to bring convenience to people.\
+                    No money is earned from this webapp.")
+    with privacy_tab:
+        st.write("This webapp does not store any images or data. All processing is done locally on your device.")
+        st.write("For more information, please refer to the [Streamlit Privacy Policy](https://streamlit.io/privacy-policy).")
+    with version_tab:
+        st.write("Currently: Version 1.0.0")
+        version_history_expand = st.expander("Version History", expanded=False)
+        with version_history_expand:
+            st.write("**Version 1.0.0** (12 Jan 2025): Initial release of the webapp.")
 
-# Footer
-st.write("Made with ❤️ by [Bek Joon Hao](%s)" % "www.linkedin.com/in/bek-joon-hao")
-st.write("© 2025 Got My Photos?. All rights reserved.")
+
+st.divider()
+
+footer_container = st.container()
+with footer_container:
+    # Footer
+    st.write("Made with ❤️ by [Bek Joon Hao](%s)" % "www.linkedin.com/in/bek-joon-hao")
+    st.write("© 2025 Got My Photos?. All rights reserved.")
 
