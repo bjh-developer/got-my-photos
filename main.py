@@ -223,7 +223,7 @@ with feedback_container:
     # Feedback
     st.header("Have Feedback?")
     st.write("If you have any feedback, suggestions, or bug reports, feel free to share them here.")
-    st.link_button("Share Feedback", "https://equatorial-seed-0b4.notion.site/17986b21da3580d59823d7c8fde8bcb4?pvs=105")
+    st.link_button("Share Feedback", "https://forms.gle/G4QKeWFLEi8JqpoH7")
 
 
 st.divider()
