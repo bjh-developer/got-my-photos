@@ -1,3 +1,5 @@
+"""Got My Photos? Version 1.0.0"""
+
 import streamlit as st
 import face_recognition
 import zipfile
