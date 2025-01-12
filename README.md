@@ -12,7 +12,6 @@
 
 
 <!-- PROJECT LOGO -->
-<br />
 <div align="center">
 
 <h3 align="center">Got My Photos?</h3>
