@@ -22,7 +22,7 @@
     <br />
     <a href="https://got-my-photos.streamlit.app/">View Web App</a>
     &middot;
-    <a href="https://equatorial-seed-0b4.notion.site/17986b21da3580d59823d7c8fde8bcb4?pvs=105">Report Bug & Request Feature</a>
+    <a href="https://forms.gle/G4QKeWFLEi8JqpoH7">Report Bug & Request Feature</a>
   </p>
 </div>
 
