@@ -141,7 +141,7 @@ st.toast("This webapp does not store any images or data. All processing is done 
 intro_container = st.container()
 with intro_container:
     st.title("📸 Got My Photos?")
-    st.write("Upload a photo of yourself and a folder of random photos. The webapp will detect and extract photos containing your face.")
+    st.write("Got many photos but was unable to find which ones you're in. Upload a photo of yourself and the many photos. The web app will detect and extract photos containing your face.")
     story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
     story_expand.write("By Joon Hao: The inspiration behind this webapp comes from my time in Hwa Chong Institution (College).")
     story_expand.write("During my time at Hwa Chong Institution (College)\
