@@ -1,4 +1,4 @@
-"""Got My Photos? Version 1.0.0"""
+"""Got My Photos? Version 1.1.0"""
 
 import streamlit as st
 import face_recognition
@@ -108,8 +108,8 @@ def process_images(target_image, image_files, tolerance, updates_expand, progres
 
     # Loop through uploaded images to find matches
     for image_file in image_files:
-        name = image_file.name
-        image_file = rotate_image(Image.open(image_file))
+        name = image_file
+        image_file = rotate_image(Image.open(image_files[name]))
 
         try:
             image = face_recognition.load_image_file(image_file)
@@ -145,7 +145,7 @@ st.toast("This webapp does not store any images or data. All processing is done 
 intro_container = st.container()
 with intro_container:
     st.title("📸 Got My Photos?")
-    st.write("Received many photos but was unable to find which ones you're in. Upload a photo of yourself and the many photos. The web app will detect and extract photos containing your face.")
+    st.write("Received many photos but was unable to find which ones you're in? Upload a photo of yourself and the photos you'd like to search through. The web app will detect and extract photos containing your face.")
     story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
     story_expand.write("By Joon Hao: The inspiration behind this webapp comes from my time in Hwa Chong Institution (College).")
     story_expand.write("During my time at HCI (College)\
@@ -182,7 +182,7 @@ with steps_container:
 
     # Upload random photos
     st.header("Step 2: Upload Photos to Search")
-    photo_files = st.file_uploader("Upload multiple photos:", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+    photo_files = st.file_uploader("Upload multiple photos:", type=["jpg", "jpeg", "png", "zip"], accept_multiple_files=True)
 
     # Process and download results
     st.header("Step 3: Click, Wait and Download!")
@@ -191,14 +191,30 @@ with steps_container:
              Accuracy varies, please submit a feedback form if it is highly inaccurate.")
     if st.button("Find Matching Photos"):
         if target_image and photo_files:
+
+            # Extract files from ZIP if uploaded
+            extracted_files = {}
+            for file in photo_files:
+                if file.type == "application/zip":
+                    with zipfile.ZipFile(file, 'r') as zip_ref:
+                        for name in zip_ref.namelist():
+                            if name.lower().endswith(('.jpg', '.jpeg', '.png'))\
+                                and not name.startswith('__MACOSX/')\
+                                and not name.startswith('._'):
+                                extracted_files[name] = BytesIO(zip_ref.read(name))
+                else:
+                    if file.name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                        extracted_files[file.name] = file
+            print(extracted_files)
+
             with st.spinner("Processing images. Please wait..."):
                 curr_progress = 0
-                max_progress = len(photo_files)
+                max_progress = len(extracted_files)
                 progress_bar = st.progress(curr_progress, text="Progress bar:")
                 updates_expand = st.expander("Updates", icon="⏳")
 
                 # Process the images
-                matched_images = process_images(target_image, photo_files, 0.43, updates_expand, progress_bar, curr_progress, max_progress)
+                matched_images = process_images(target_image, extracted_files, 0.43, updates_expand, progress_bar, curr_progress, max_progress)
 
                 if matched_images:
                     st.balloons()
@@ -257,9 +273,10 @@ with info_container:
         st.write("This webapp does not store any images or data. All processing is done locally on your device.")
         st.write("For more information, please refer to the [Streamlit Privacy Policy](https://streamlit.io/privacy-policy).")
     with version_tab:
-        st.write("Currently: Version 1.0.0")
+        st.write("Currently: Version 1.1.0")
         version_history_expand = st.expander("Version History", expanded=False)
         with version_history_expand:
+            st.write("**Version 1.1.0** (12 Jan 2025): Enabled the upload of zip folder.")
             st.write("**Version 1.0.0** (12 Jan 2025): Initial release of the webapp.")
 
 
