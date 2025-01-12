@@ -203,9 +203,18 @@ if st.button("Find Matching Photos"):
 st.divider()
 
 
+# Feedback
+st.header("Have Feedback?")
+st.write("If you have any feedback, suggestions, or bug reports, feel free to share them here.")
+st.link_button("Share Feedback", "https://equatorial-seed-0b4.notion.site/17986b21da3580d59823d7c8fde8bcb4?pvs=105")
+
+
+st.divider()
+
+
 # More information
-about_tap, privacy_tap, version_tap = st.tabs(["About", "Privacy", "Version History"])
-with about_tap:
+about_tab, privacy_tab, version_tab = st.tabs(["About", "Privacy", "Version History"])
+with about_tab:
     st.write("Created by [Bek Joon Hao](%s), this webapp uses facial recognition to find photos\
               containing your face from a set of random photos. It is built with Streamlit\
               and the face_recognition library." % "www.linkedin.com/in/bek-joon-hao")
@@ -216,10 +225,10 @@ with about_tap:
     st.warning("Disclaimer: This webapp is not affiliated with Studio Ardent or Hwa Chong Institution (College).\
                 This is a personal project created to bring convenience to people.\
                 No money is earned from this webapp.")
-with privacy_tap:
+with privacy_tab:
     st.write("This webapp does not store any images or data. All processing is done locally on your device.")
     st.write("For more information, please refer to the [Streamlit Privacy Policy](https://streamlit.io/privacy-policy).")
-with version_tap:
+with version_tab:
     st.write("Currently: Version 1.0.0")
     version_history_expand = st.expander("Version History", expanded=False)
     with version_history_expand:
@@ -229,15 +238,7 @@ with version_tap:
 st.divider()
 
 
-# Feedback
-st.header("Have Feedback?")
-st.write("If you have any feedback, suggestions, or bug reports, feel free to share them here.")
-st.link_button("Share Feedback", "https://equatorial-seed-0b4.notion.site/17986b21da3580d59823d7c8fde8bcb4?pvs=105")
-
-
-st.divider()
-
-
 # Footer
 st.write("Made with ❤️ by [Bek Joon Hao](%s)" % "www.linkedin.com/in/bek-joon-hao")
 st.write("© 2025 Got My Photos?. All rights reserved.")
+
