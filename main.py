@@ -132,7 +132,7 @@ def process_images(target_image, image_files, tolerance, updates_expand, progres
             
             # Update progress bar
             curr_progress += 1
-            progress_bar.progress(curr_progress/max_progress)
+            progress_bar.progress(curr_progress/max_progress, text=f"Progress bar: {curr_progress}/{max_progress}")
 
         except Exception as e:
             st.error(f"Error processing image {name}: {e}")
