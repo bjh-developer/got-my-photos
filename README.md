@@ -49,9 +49,15 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+During his time at Hwa Chong Institution (College), Joon Hao always looked forward to receiving the photographs taken by Studio Ardent (a Service and Enrichment CCA that contributes in a great way to major school events through its photography, videography and PA/AVA services) after any key events.
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+However, he found it tedious to look through the hundreds of wonderful photographs by Studio Ardent in search of images with him inside to download.
+
+That's when Joon Hao decided to create the web app 'Got My Photos?' to alleviate this problem.
+
+'Got My Photos?' aims to help HCI (College) students automate the task of sieving out images of themselves taken by Studio Ardent.
+
+Just in 3 simple steps, they can download Studio Ardent images that have their face in them!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
