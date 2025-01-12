@@ -6,6 +6,14 @@ from io import BytesIO
 from PIL import Image, ExifTags
 
 
+# Web page configuration
+st.set_page_config(
+    page_title="Got My Photos?",
+    page_icon="📸",
+    layout="centered"
+)
+
+
 def rotate_image(image):
     """
     Rotate the image based on EXIF orientation metadata if needed.
@@ -133,7 +141,7 @@ with intro_container:
     st.write("Upload a photo of yourself and a folder of random photos. The webapp will detect and extract photos containing your face.")
     story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
     story_expand.write("During his time at Hwa Chong Institution (College)\
-                    , Joon Hao always looked forward to receiving the photographs\
+                       , Joon Hao always looked forward to receiving the photographs\
                         taken by Studio Ardent (a Service and Enrichment CCA that\
                         contributes in a great way to major school events\
                         through its photography, videography and PA/AVA services)\
@@ -170,6 +178,9 @@ with steps_container:
 
     # Process and download results
     st.header("Step 3: Click, Wait and Download!")
+    st.info("It may take a while to process the images.\
+             You may leave this running in the background.\
+             Accuracy varies, please submit a feedback form if it is highly inaccurate.")
     if st.button("Find Matching Photos"):
         if target_image and photo_files:
             with st.spinner("Processing images. Please wait..."):
@@ -179,7 +190,8 @@ with steps_container:
                 matched_images = process_images(target_image, photo_files, 0.43, updates_expand)
 
                 if matched_images:
-                    st.success(f"Found {len(matched_images)} matching photos.")
+                    st.balloons()
+                    st.success(f"Found {len(matched_images)} matching photo." if len(matched_images)==1 else f"Found {len(matched_images)} matching photos.")
 
                     # Create a ZIP file to download
                     zip_buffer = BytesIO()
