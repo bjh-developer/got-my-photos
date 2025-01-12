@@ -148,7 +148,7 @@ with intro_container:
     st.write("Received many photos but was unable to find which ones you're in. Upload a photo of yourself and the many photos. The web app will detect and extract photos containing your face.")
     story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
     story_expand.write("By Joon Hao: The inspiration behind this webapp comes from my time in Hwa Chong Institution (College).")
-    story_expand.write("During my time at Hwa Chong Institution (College)\
+    story_expand.write("During my time at HCI (College)\
                        , I always looked forward to receiving the photographs\
                         taken by Studio Ardent (a Service and Enrichment CCA that\
                         contributes in a great way to major school events\
