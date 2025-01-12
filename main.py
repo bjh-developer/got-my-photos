@@ -140,17 +140,18 @@ with intro_container:
     st.title("📸 Got My Photos?")
     st.write("Upload a photo of yourself and a folder of random photos. The webapp will detect and extract photos containing your face.")
     story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
-    story_expand.write("During his time at Hwa Chong Institution (College)\
-                       , Joon Hao always looked forward to receiving the photographs\
+    story_expand.write("By Joon Hao: The inspiration behind this webapp comes from my time in Hwa Chong Institution (College).")
+    story_expand.write("During my time at Hwa Chong Institution (College)\
+                       , I always looked forward to receiving the photographs\
                         taken by Studio Ardent (a Service and Enrichment CCA that\
                         contributes in a great way to major school events\
                         through its photography, videography and PA/AVA services)\
                         after any key events."
                     )
-    story_expand.write("However, he found it tedious to look through the hundreds\
+    story_expand.write("However, I found it tedious to look through the hundreds\
                         of wonderful photographs by Studio Ardent in search of\
-                        images with him inside to download.")
-    story_expand.write("That's when Joon Hao decided to create the web app\
+                        images with me inside to download.")
+    story_expand.write("That's when I decided to create the web app\
                         'Got My Photos?' to alleviate this problem.")
     story_expand.write("'Got My Photos?' aims to help HCI (College) students automate\
                         the task of sieving out images of themselves taken by Studio Ardent.")
