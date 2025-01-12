@@ -220,13 +220,13 @@ with info_container:
     # More information
     about_tab, privacy_tab, version_tab = st.tabs(["About", "Privacy", "Version History"])
     with about_tab:
-        st.write("Created by [Bek Joon Hao](www.linkedin.com/in/bek-joon-hao), this webapp uses facial recognition to find photos\
+        st.write("Created by [Bek Joon Hao](https://www.linkedin.com/in/bek-joon-hao/), this webapp uses facial recognition to find photos\
                 containing your face from a set of random photos. It is built with Streamlit\
                 and the face_recognition library.")
         st.write("For the full story behind this webapp, check out the 'Story behind this webapp' toggle above!")
         st.write("Even though the target audience is HCI (College) students, anyone can feel free\
                 to use this webapp to find photos with their face in them.")
-        st.write("The source code is available on [GitHub](%s)" % "https://github.com/bjh-developer/got-my-photos")
+        st.write("The source code is available on [GitHub](https://github.com/bjh-developer/got-my-photos)")
         st.warning("Disclaimer: This webapp is not affiliated with Studio Ardent or Hwa Chong Institution (College).\
                     This is a personal project created to bring convenience to people.\
                     No money is earned from this webapp.")
@@ -245,6 +245,6 @@ st.divider()
 footer_container = st.container()
 with footer_container:
     # Footer
-    st.write("Made with ❤️ by [Bek Joon Hao](%s)" % "www.linkedin.com/in/bek-joon-hao")
+    st.write("Made with ❤️ by [Bek Joon Hao](https://www.linkedin.com/in/bek-joon-hao/)")
     st.write("© 2025 Got My Photos?. All rights reserved.")
 
