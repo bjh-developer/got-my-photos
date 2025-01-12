@@ -68,7 +68,7 @@ def rotate_image(image):
         return img_byte_arr
 
 
-def process_images(target_image, image_files, tolerance, updates_expand):
+def process_images(target_image, image_files, tolerance, updates_expand, progress_bar, curr_progress, max_progress):
     """
     Processes a target image and a list of image files to find matches based on facial recognition.
     Args:
@@ -129,6 +129,10 @@ def process_images(target_image, image_files, tolerance, updates_expand):
 
             else:
                 updates_expand.warning(f"🤷‍♂️ No face detected in {name}. Skipping...")
+            
+            # Update progress bar
+            curr_progress += 1
+            progress_bar.progress(curr_progress/max_progress)
 
         except Exception as e:
             st.error(f"Error processing image {name}: {e}")
@@ -141,7 +145,7 @@ st.toast("This webapp does not store any images or data. All processing is done 
 intro_container = st.container()
 with intro_container:
     st.title("📸 Got My Photos?")
-    st.write("Got many photos but was unable to find which ones you're in. Upload a photo of yourself and the many photos. The web app will detect and extract photos containing your face.")
+    st.write("Received many photos but was unable to find which ones you're in. Upload a photo of yourself and the many photos. The web app will detect and extract photos containing your face.")
     story_expand = st.expander("Story behind this webapp...", icon=":material/info:")
     story_expand.write("By Joon Hao: The inspiration behind this webapp comes from my time in Hwa Chong Institution (College).")
     story_expand.write("During my time at Hwa Chong Institution (College)\
@@ -188,10 +192,13 @@ with steps_container:
     if st.button("Find Matching Photos"):
         if target_image and photo_files:
             with st.spinner("Processing images. Please wait..."):
+                curr_progress = 0
+                max_progress = len(photo_files)
+                progress_bar = st.progress(curr_progress, text="Progress bar:")
                 updates_expand = st.expander("Updates", icon="⏳")
 
                 # Process the images
-                matched_images = process_images(target_image, photo_files, 0.43, updates_expand)
+                matched_images = process_images(target_image, photo_files, 0.43, updates_expand, progress_bar, curr_progress, max_progress)
 
                 if matched_images:
                     st.balloons()
