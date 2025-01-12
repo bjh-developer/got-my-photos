@@ -137,6 +137,7 @@ def process_images(target_image, image_files, tolerance, updates_expand):
 
 
 # Streamlit App UI
+st.toast("This webapp does not store any images or data. All processing is done locally on your device.", icon="🔒")
 intro_container = st.container()
 with intro_container:
     st.title("📸 Got My Photos?")
