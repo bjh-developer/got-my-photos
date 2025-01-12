@@ -167,7 +167,7 @@ with intro_container:
     tutorial_expand = st.expander("How to use this webapp?", expanded=False)
     with tutorial_expand:
         st.write("1. Upload a clear photo of your face. Ensure no other faces are in the photo.")
-        st.write("2. Upload a set of random photos. You can drag and drop folders of photos.")
+        st.write("2. Upload photos you wish to search through. You can drag and drop folders of photos.")
         st.write("3. Click the 'Find Matching Photos' button and wait for the results.")
         st.write("4. Download the ZIP file containing the matching photos.")
 
