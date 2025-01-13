@@ -205,7 +205,6 @@ with steps_container:
                 else:
                     if file.name.lower().endswith(('.jpg', '.jpeg', '.png')):
                         extracted_files[file.name] = file
-            print(extracted_files)
 
             with st.spinner("Processing images. Please wait..."):
                 curr_progress = 0
