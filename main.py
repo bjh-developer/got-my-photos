@@ -162,7 +162,7 @@ with intro_container:
                         'Got My Photos?' to alleviate this problem.")
     story_expand.write("'Got My Photos?' aims to help HCI (College) students automate\
                         the task of sieving out images of themselves taken by Studio Ardent.")
-    story_expand.write("Just in 3 simple steps, they can download Studio Ardent\
+    story_expand.write("In just 3 simple steps, they can download Studio Ardent\
                         images that have their face in them!")
     tutorial_expand = st.expander("How to use this webapp?", expanded=False)
     with tutorial_expand:
@@ -263,7 +263,7 @@ with info_container:
                 and the face_recognition library.")
         st.write("For the full story behind this webapp, check out the 'Story behind this webapp' toggle above!")
         st.write("Even though the target audience is HCI (College) students, anyone can feel free\
-                to use this webapp to find photos with their face in them.")
+                to use this webapp to find photos with their faces in them.")
         st.write("The source code is available on [GitHub](https://github.com/bjh-developer/got-my-photos)")
         st.warning("Disclaimer: This webapp is not affiliated with Studio Ardent or Hwa Chong Institution (College).\
                     This is a personal project created to bring convenience to people.\
