@@ -287,4 +287,5 @@ with footer_container:
     # Footer
     st.write("Made with ❤️ by [Bek Joon Hao](https://www.linkedin.com/in/bek-joon-hao/)")
     st.write("© 2025 Got My Photos?. All rights reserved.")
+    st.write("Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/)")
 
