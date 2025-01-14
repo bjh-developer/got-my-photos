@@ -141,7 +141,7 @@ def process_images(target_image, image_files, tolerance, updates_expand, progres
 
 
 # Streamlit App UI
-st.toast("This webapp does not store any images or data. All processing is done locally on your device.", icon="🔒")
+st.toast("Images uploaded are removed from memory once it's done. No data are stored permanently.", icon="🔒")
 intro_container = st.container()
 with intro_container:
     st.title("📸 Got My Photos?")
@@ -269,8 +269,9 @@ with info_container:
                     This is a personal project created to bring convenience to people.\
                     No money is earned from this webapp.")
     with privacy_tab:
-        st.write("This webapp does not store any images or data. All processing is done locally on your device.")
-        st.write("For more information, please refer to the [Streamlit Privacy Policy](https://streamlit.io/privacy-policy).")
+        st.write("This webapp removes any images uploaded from memory once you close the website. No data is stored permanently.")
+        st.write("For more information, please refer to the [Streamlit Privacy Policy](https://streamlit.io/privacy-policy)\
+                  or [Streamlit File Uploader](https://docs.streamlit.io/knowledge-base/using-streamlit/where-file-uploader-store-when-deleted).")
     with version_tab:
         st.write("Currently: Version 1.1.0")
         version_history_expand = st.expander("Version History", expanded=False)
